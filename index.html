@@ -153,7 +153,8 @@ footer {
 <section id="dashboard" class="hidden">
   <div class="auth-box">
     <h2>Welcome to Your Dashboard</h2>
-    <p id="userEmail"></p>
+    <p id="userName"></p>
+<p id="userEmail"></p>
     <button class="btn" id="logoutButton">Logout</button>
   </div>
 </section>
@@ -173,11 +174,15 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const registerMessage = document.getElementById('registerMessage');
 const loginMessage = document.getElementById('loginMessage');
-
 function showDashboard(user) {
   document.getElementById('dashboard').classList.toggle('hidden', !user);
+
+  document.getElementById('userName').textContent =
+    user ? 'Welcome, ' + (user.user_metadata?.full_name || 'Member') : '';
+
   document.getElementById('userEmail').textContent =
     user ? 'Logged in as: ' + user.email : '';
+}
 }
 
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
