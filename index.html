@@ -4,8 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="google-site-verification" content="duDSj_012qmW5aVR-bIOx7tosFnTi3VuO_YG7l7SVLw" />
+<meta name="google-site-verification" content="duDSj_012qmW5aVR-bIOx7tosFnTi3VuO_YG7l7SVLw">
 <title>SHADOW EARN</title>
+
 <style>
 * { box-sizing: border-box; }
 body {
@@ -20,24 +21,29 @@ header {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #292941;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 .logo { color: #a78bfa; font-size: 25px; font-weight: bold; }
-nav a { color: white; text-decoration: none; margin-left: 18px; }
-.hero {
-  text-align: center;
-  padding: 100px 20px;
+nav a {
+  color: white;
+  text-decoration: none;
+  margin: 8px;
 }
-.hero h1 { font-size: 48px; }
+.hero { text-align: center; padding: 75px 20px; }
+.hero h1 { font-size: 42px; }
 .hero h1 span { color: #a78bfa; }
 .hero p { color: #c4c4d4; line-height: 1.8; }
 .btn {
   display: inline-block;
   background: #7c3aed;
   color: white;
-  padding: 14px 28px;
+  padding: 13px 25px;
+  border: 0;
   border-radius: 9px;
   text-decoration: none;
-  margin: 10px;
+  cursor: pointer;
+  margin: 8px;
 }
 section { padding: 35px 8%; text-align: center; }
 .cards {
@@ -46,13 +52,28 @@ section { padding: 35px 8%; text-align: center; }
   flex-wrap: wrap;
   gap: 20px;
 }
-.card {
+.card, .auth-box {
   background: #17172b;
   border: 1px solid #373354;
   border-radius: 14px;
   padding: 28px;
-  width: 240px;
 }
+.card { width: 240px; }
+.auth-box {
+  max-width: 420px;
+  margin: 20px auto;
+}
+.auth-box input {
+  width: 100%;
+  padding: 13px;
+  margin: 9px 0;
+  border: 1px solid #494568;
+  border-radius: 7px;
+  background: #090914;
+  color: white;
+}
+.message { color: #c4b5fd; line-height: 1.6; }
+.hidden { display: none; }
 footer {
   padding: 25px;
   text-align: center;
@@ -61,6 +82,7 @@ footer {
 }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -70,7 +92,7 @@ footer {
     <a href="#about">About</a>
     <a href="#tasks">Tasks</a>
     <a href="#register">Register</a>
-<a href="#login">Login</a>
+    <a href="#login">Login</a>
   </nav>
 </header>
 
@@ -103,9 +125,135 @@ footer {
   </div>
 </section>
 
+<section id="register">
+  <div class="auth-box">
+    <h2>Create Account</h2>
+    <form id="registerForm">
+      <input id="regName" type="text" placeholder="Full Name" required>
+      <input id="regEmail" type="email" placeholder="Email Address" required>
+      <input id="regPassword" type="password" placeholder="Password (minimum 6 characters)" minlength="6" required>
+      <button class="btn" type="submit">Register</button>
+    </form>
+    <p id="registerMessage" class="message"></p>
+  </div>
+</section>
+
+<section id="login">
+  <div class="auth-box">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input id="loginEmail" type="email" placeholder="Email Address" required>
+      <input id="loginPassword" type="password" placeholder="Password" required>
+      <button class="btn" type="submit">Login</button>
+    </form>
+    <p id="loginMessage" class="message"></p>
+  </div>
+</section>
+
+<section id="dashboard" class="hidden">
+  <div class="auth-box">
+    <h2>Welcome to Your Dashboard</h2>
+    <p id="userEmail"></p>
+    <button class="btn" id="logoutButton">Logout</button>
+  </div>
+</section>
+
 <footer>
   © 2026 SHADOW EARN. All rights reserved.
 </footer>
+
+<script type="module">
+import { createClient } from
+'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://ivfkbwfpekmkhsqexjpd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_HisP6TtLN9tB-ZwNDhnw5Q_57mTx3KH';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const registerMessage = document.getElementById('registerMessage');
+const loginMessage = document.getElementById('loginMessage');
+
+function showDashboard(user) {
+  document.getElementById('dashboard').classList.toggle('hidden', !user);
+  document.getElementById('userEmail').textContent =
+    user ? 'Logged in as: ' + user.email : '';
+}
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  registerMessage.textContent = 'Creating your account...';
+
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name: name }
+    }
+  });
+
+  if (error) {
+    registerMessage.textContent = error.message;
+    return;
+  }
+
+  if (data.session) {
+    registerMessage.textContent = 'Account created successfully!';
+    showDashboard(data.user);
+  } else {
+    registerMessage.textContent =
+      'Registration successful! Please check your email and confirm your account before logging in.';
+  }
+
+  document.getElementById('registerForm').reset();
+});
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  loginMessage.textContent = 'Logging in...';
+
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    loginMessage.textContent = error.message;
+    return;
+  }
+
+  loginMessage.textContent = 'Login successful!';
+  showDashboard(data.user);
+  document.getElementById('loginForm').reset();
+  document.getElementById('dashboard').scrollIntoView({behavior:'smooth'});
+});
+
+document.getElementById('logoutButton').addEventListener('click', async () => {
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    loginMessage.textContent = error.message;
+    return;
+  }
+
+  showDashboard(null);
+  loginMessage.textContent = 'You have logged out successfully.';
+});
+
+const { data: { session } } = await supabase.auth.getSession();
+showDashboard(session?.user || null);
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  showDashboard(session?.user || null);
+});
+</script>
 
 </body>
 </html>
