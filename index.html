@@ -175,7 +175,13 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const registerMessage = document.getElementById('registerMessage');
 const loginMessage = document.getElementById('loginMessage');
 function showDashboard(user) {
-  document.getElementById('dashboard').classList.toggle('hidden', !user);
+  const isLoggedIn = Boolean(user);
+
+  document.getElementById('dashboard').classList.toggle('hidden', !isLoggedIn);
+
+  document.getElementById('register').classList.toggle('hidden', isLoggedIn);
+
+  document.getElementById('login').classList.toggle('hidden', isLoggedIn);
 
   document.getElementById('userName').textContent =
     user ? 'Welcome, ' + (user.user_metadata?.full_name || 'Member') : '';
@@ -183,7 +189,6 @@ function showDashboard(user) {
   document.getElementById('userEmail').textContent =
     user ? 'Logged in as: ' + user.email : '';
 }
-
 
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
