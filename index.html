@@ -158,7 +158,13 @@ footer {
     <button class="btn" id="logoutButton">Logout</button>
   </div>
 </section>
-
+<section id="adminDashboard" class="hidden">
+  <div class="auth-box">
+    <h2>SHADOW EARN Admin Dashboard</h2>
+    <p>Welcome, Administrator!</p>
+    <p>Manage members and platform activities.</p>
+  </div>
+</section>
 <footer>
   © 2026 SHADOW EARN. All rights reserved.
 </footer>
@@ -187,7 +193,16 @@ async function showDashboard(user) {
     document.getElementById('userEmail').textContent = '';
     return;
   }
+  const { data: adminRecord } = await supabase
+    .from('admin_users')
+    .select('user_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
 
+  document.getElementById('adminDashboard').classList.toggle(
+    'hidden',
+    !adminRecord
+  );
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('full_name, email')
