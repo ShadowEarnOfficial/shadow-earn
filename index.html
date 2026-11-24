@@ -174,21 +174,33 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const registerMessage = document.getElementById('registerMessage');
 const loginMessage = document.getElementById('loginMessage');
-function showDashboard(user) {
+
+async function showDashboard(user) {
   const isLoggedIn = Boolean(user);
 
   document.getElementById('dashboard').classList.toggle('hidden', !isLoggedIn);
-
   document.getElementById('register').classList.toggle('hidden', isLoggedIn);
-
   document.getElementById('login').classList.toggle('hidden', isLoggedIn);
 
+  if (!user) {
+    document.getElementById('userName').textContent = '';
+    document.getElementById('userEmail').textContent = '';
+    return;
+  }
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('full_name, email')
+    .eq('id', user.id)
+    .maybeSingle();
+
   document.getElementById('userName').textContent =
-    user ? 'Welcome, ' + (user.user_metadata?.full_name || 'Member') : '';
+    'Welcome, ' + (profile?.full_name || user.user_metadata?.full_name || 'Member');
 
   document.getElementById('userEmail').textContent =
-    user ? 'Logged in as: ' + user.email : '';
+    'Logged in as: ' + (profile?.email || user.email);
 }
+
 
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
