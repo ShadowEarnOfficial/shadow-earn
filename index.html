@@ -191,8 +191,9 @@ async function showDashboard(user) {
   if (!user) {
     document.getElementById('userName').textContent = '';
     document.getElementById('userEmail').textContent = '';
+    document.getElementById('adminDashboard').classList.add('hidden');
     return;
-  }
+}
   const { data: adminRecord } = await supabase
     .from('admin_users')
     .select('user_id')
